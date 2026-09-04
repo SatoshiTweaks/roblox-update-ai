@@ -1,13 +1,12 @@
 {
   "name": "roblox-update-ai",
   "version": "1.0.0",
-  "description": "API para gerar changelogs do Roblox com IA",
+  "description": "API para gerar changelogs do Roblox",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "openai": "^5.12.0"
+    "express": "^5.1.0"
   }
 }
