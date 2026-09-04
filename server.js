@@ -12,12 +12,19 @@ app.get("/", (req, res) => {
     });
 });
 
+// ==========================================
+// FORMATADOR DE ATUALIZAÇÕES
+// ==========================================
+
 function formatarAtualizacao(texto) {
+
     texto = texto.trim();
 
     const textoMinusculo = texto.toLowerCase();
+
     const secoes = [];
 
+    // ⚔️ ESPADA
     if (
         textoMinusculo.includes("espada") ||
         textoMinusculo.includes("arma")
@@ -25,10 +32,11 @@ function formatarAtualizacao(texto) {
         secoes.push(
             "⚔️ NOVA ESPADA\n\n" +
             "Uma nova espada foi adicionada ao jogo.\n" +
-            "Teste seu novo equipamento e descubra seu poder."
+            "Teste o novo equipamento e descubra seu poder."
         );
     }
 
+    // 👹 BOSS
     if (
         textoMinusculo.includes("boss") ||
         textoMinusculo.includes("chefe")
@@ -40,6 +48,7 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // 🌎 ÁREA
     if (
         textoMinusculo.includes("área") ||
         textoMinusculo.includes("area") ||
@@ -53,6 +62,7 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // 👤 NPC
     if (
         textoMinusculo.includes("npc") ||
         textoMinusculo.includes("personagem")
@@ -64,11 +74,12 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // 🔧 BUGS
     if (
         textoMinusculo.includes("bug") ||
+        textoMinusculo.includes("bugs") ||
         textoMinusculo.includes("correção") ||
-        textoMinusculo.includes("correcao") ||
-        textoMinusculo.includes("bugs")
+        textoMinusculo.includes("correcao")
     ) {
         secoes.push(
             "🔧 CORREÇÕES DE BUGS\n\n" +
@@ -77,6 +88,7 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // ⚡ DESEMPENHO
     if (
         textoMinusculo.includes("desempenho") ||
         textoMinusculo.includes("performance") ||
@@ -91,8 +103,10 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // ✨ SKILLS
     if (
         textoMinusculo.includes("skill") ||
+        textoMinusculo.includes("skills") ||
         textoMinusculo.includes("habilidade")
     ) {
         secoes.push(
@@ -102,6 +116,7 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // 💰 GOLD / XP
     if (
         textoMinusculo.includes("gold") ||
         textoMinusculo.includes("ouro") ||
@@ -114,6 +129,7 @@ function formatarAtualizacao(texto) {
         );
     }
 
+    // ⚙️ SISTEMA
     if (
         textoMinusculo.includes("sistema") ||
         textoMinusculo.includes("sistemas")
@@ -125,27 +141,41 @@ function formatarAtualizacao(texto) {
         );
     }
 
-    if (secoes.length === 0) {
-        return (
-            "✨ NOVA ATUALIZAÇÃO\n\n" +
-            texto +
-            "\n\n" +
-            "Esta atualização traz novidades e melhorias para o jogo."
-        );
-    }
+    // ==========================================
+    // INFORMAÇÃO ORIGINAL DO ADMINISTRADOR
+    // ==========================================
 
-    return secoes.join("\n\n━━━━━━━━━━━━━━━━━━━━\n\n");
+    secoes.push(
+        "📋 DETALHES DA ATUALIZAÇÃO\n\n" +
+        texto
+    );
+
+    // ==========================================
+    // JUNTA TUDO
+    // ==========================================
+
+    return secoes.join(
+        "\n\n━━━━━━━━━━━━━━━━━━━━\n\n"
+    );
 }
 
+// ==========================================
+// RECEBER ATUALIZAÇÃO
+// ==========================================
+
 app.post("/", (req, res) => {
+
     try {
+
         const prompt = req.body?.prompt;
 
         if (!prompt) {
+
             return res.status(400).json({
                 success: false,
                 message: "Prompt não enviado."
             });
+
         }
 
         console.log("====================================");
@@ -153,8 +183,11 @@ app.post("/", (req, res) => {
         console.log("====================================");
         console.log(prompt);
 
+        // ==========================================
+        // PEGAR VERSÃO
+        // ==========================================
+
         let version = "1.0.0";
-        let description = prompt;
 
         const versionMatch = prompt.match(
             /Versão:\s*([0-9]+(?:\.[0-9]+)*)/i
@@ -164,6 +197,12 @@ app.post("/", (req, res) => {
             version = versionMatch[1];
         }
 
+        // ==========================================
+        // PEGAR TODAS AS ALTERAÇÕES
+        // ==========================================
+
+        let description = prompt;
+
         const changesMatch = prompt.match(
             /Alterações informadas pelo administrador:\s*([\s\S]+)/i
         );
@@ -172,7 +211,12 @@ app.post("/", (req, res) => {
             description = changesMatch[1].trim();
         }
 
-        const descricaoFormatada = formatarAtualizacao(description);
+        // ==========================================
+        // GERAR DESCRIÇÃO
+        // ==========================================
+
+        const descricaoFormatada =
+            formatarAtualizacao(description);
 
         const update = {
             version: version,
@@ -180,9 +224,15 @@ app.post("/", (req, res) => {
             description: descricaoFormatada
         };
 
+        console.log("====================================");
         console.log("📌 VERSÃO:", version);
-        console.log("📝 DESCRIÇÃO GERADA:");
+        console.log("📝 DESCRIÇÃO COMPLETA:");
         console.log(descricaoFormatada);
+        console.log("====================================");
+
+        // ==========================================
+        // RESPOSTA
+        // ==========================================
 
         res.json({
             success: true,
@@ -190,15 +240,26 @@ app.post("/", (req, res) => {
         });
 
     } catch (error) {
+
         console.error("❌ ERRO:", error);
 
         res.status(500).json({
             success: false,
             message: "Erro interno do servidor."
         });
+
     }
+
 });
 
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
+
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Servidor iniciado na porta ${PORT}`);
+
+    console.log(
+        `🚀 Servidor iniciado na porta ${PORT}`
+    );
+
 });
