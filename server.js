@@ -8,7 +8,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.json({
         success: true,
-        message: "API do Roblox Update funcionando sem OpenAI!"
+        message: "API do Roblox Update funcionando!"
     });
 });
 
@@ -25,10 +25,27 @@ app.post("/", (req, res) => {
 
         console.log("Pedido recebido:", prompt);
 
+        let version = "1.0.0";
+        let description = prompt;
+
+        const versionMatch = prompt.match(/Versão:\s*([0-9.]+)/i);
+
+        if (versionMatch) {
+            version = versionMatch[1];
+        }
+
+        const changesMatch = prompt.match(
+            /Alterações informadas pelo administrador:\s*(.+)/i
+        );
+
+        if (changesMatch) {
+            description = changesMatch[1].trim();
+        }
+
         const update = {
-            version: "1.0.1",
+            version: version,
             date: new Date().toLocaleDateString("pt-BR"),
-            description: "Nova atualização do jogo. Sistema de atualizações conectado ao servidor."
+            description: description
         };
 
         console.log("Atualização gerada:", update);
