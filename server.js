@@ -1,9 +1,14 @@
 const express = require("express");
+const OpenAI = require("openai");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
 // Rota de teste
 app.get("/", (req, res) => {
@@ -13,24 +18,42 @@ app.get("/", (req, res) => {
     });
 });
 
-// Rota usada pelo Roblox
-app.post("/", (req, res) => {
-    console.log("Pedido recebido do Roblox:", req.body);
+// Rota da IA
+app.post("/", async (req, res) => {
+    try {
+        const prompt = req.body?.prompt;
 
-    const prompt = req.body?.prompt;
+        if (!prompt) {
+            return res.status(400).json({
+                success: false,
+                message: "Prompt não enviado."
+            });
+        }
 
-    if (!prompt) {
-        return res.status(400).json({
+        console.log("Pedido recebido do Roblox:", prompt);
+
+        const response = await client.responses.create({
+            model: "gpt-5-mini",
+            input: prompt
+        });
+
+        const resposta = response.output_text;
+
+        console.log("Resposta da IA:", resposta);
+
+        res.json({
+            success: true,
+            response: resposta
+        });
+
+    } catch (error) {
+        console.error("Erro na OpenAI:", error);
+
+        res.status(500).json({
             success: false,
-            message: "Prompt não enviado."
+            message: "Erro ao consultar a IA."
         });
     }
-
-    res.json({
-        success: true,
-        message: "Pedido recebido com sucesso!",
-        prompt: prompt
-    });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
