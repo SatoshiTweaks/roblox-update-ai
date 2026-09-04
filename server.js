@@ -1,25 +1,18 @@
 const express = require("express");
-const OpenAI = require("openai");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
-
-// Rota de teste
 app.get("/", (req, res) => {
     res.json({
         success: true,
-        message: "API do Roblox Update funcionando!"
+        message: "API do Roblox Update funcionando sem OpenAI!"
     });
 });
 
-// Rota da IA
-app.post("/", async (req, res) => {
+app.post("/", (req, res) => {
     try {
         const prompt = req.body?.prompt;
 
@@ -30,28 +23,27 @@ app.post("/", async (req, res) => {
             });
         }
 
-        console.log("Pedido recebido do Roblox:", prompt);
+        console.log("Pedido recebido:", prompt);
 
-        const response = await client.responses.create({
-            model: "gpt-5-mini",
-            input: prompt
-        });
+        const update = {
+            version: "1.0.1",
+            date: new Date().toLocaleDateString("pt-BR"),
+            description: "Nova atualização do jogo. Sistema de atualizações conectado ao servidor."
+        };
 
-        const resposta = response.output_text;
-
-        console.log("Resposta da IA:", resposta);
+        console.log("Atualização gerada:", update);
 
         res.json({
             success: true,
-            response: resposta
+            update: update
         });
 
     } catch (error) {
-        console.error("Erro na OpenAI:", error);
+        console.error("Erro:", error);
 
         res.status(500).json({
             success: false,
-            message: "Erro ao consultar a IA."
+            message: "Erro interno do servidor."
         });
     }
 });
